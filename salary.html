@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>工时工资计算器</title>
+    <link rel="manifest" id="manifest">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --p: #6366f1; --pd: #4f46e5; --s: #10b981; --a: #f59e0b; --d: #ef4444; --bg: #0f172a; --c: #1e293b; --t: #f1f5f9; --m: #94a3b8; --b: #334155; }
+        body { font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background: var(--bg); color: var(--t); min-height: 100vh; padding: 12px; padding-bottom: 80px; }
+        .w { max-width: 520px; margin: 0 auto; }
+        .h { text-align: center; padding: 16px 0 12px; }
+        .h h1 { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg,var(--p),var(--s)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .h p { color: var(--m); font-size: 0.8rem; margin-top: 4px; }
+        .tc { background: linear-gradient(135deg,rgba(99,102,241,0.15),rgba(16,185,129,0.1)); border: 1px solid rgba(99,102,241,0.2); border-radius: 20px; padding: 22px; text-align: center; margin-bottom: 14px; }
+        .tc .l { font-size: 0.75rem; color: var(--m); letter-spacing: 2px; }
+        .tc .a { font-size: 2.4rem; font-weight: 800; background: linear-gradient(135deg,#fff,#c7d2fe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-variant-numeric: tabular-nums; margin: 6px 0; }
+        .tc .s { font-size: 0.8rem; color: var(--m); }
+        .tc .s span { color: var(--s); font-weight: 600; }
+        .card { background: var(--c); border-radius: 16px; padding: 18px; margin-bottom: 12px; border: 1px solid var(--b); }
+        .ct { font-size: 0.95rem; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .ct::before { content: ''; width: 4px; height: 18px; background: linear-gradient(180deg,var(--p),var(--s)); border-radius: 2px; }
+        .ss { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--b); }
+        .fg { display: flex; flex-direction: column; gap: 4px; }
+        .fg label { font-size: 0.75rem; color: var(--m); }
+        .fg input { padding: 10px; border-radius: 10px; border: 1px solid var(--b); background: rgba(255,255,255,0.03); color: var(--t); font-size: 0.95rem; outline: none; }
+        .fg input:focus { border-color: var(--p); }
+        .db { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+        .db input[type="date"] { padding: 10px 12px; border-radius: 10px; border: 1px solid var(--b); background: rgba(255,255,255,0.03); color: var(--t); font-size: 1rem; outline: none; }
+        .badge { padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
+        .badge.w { background: rgba(99,102,241,0.15); color: #818cf8; border-color: rgba(99,102,241,0.3); }
+        .badge.o { background: rgba(245,158,11,0.15); color: #fbbf24; border-color: rgba(245,158,11,0.3); }
+        .sr { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 14px; }
+        .sb { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 12px 8px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        .sb .v { font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .sb .l { font-size: 0.7rem; color: var(--m); margin-top: 3px; }
+        .sb.n .v { color: #818cf8; }
+        .sb.o .v { color: #fbbf24; }
+        .sb.t .v { color: #34d399; }
+        .rl { display: flex; flex-direction: column; gap: 8px; }
+        .ri { background: rgba(255,255,255,0.03); border-radius: 14px; padding: 12px 14px; border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .ri.on { border-color: var(--s); background: rgba(16,185,129,0.06); }
+        .rlf { flex: 1; min-width: 0; }
+        .rt { font-size: 0.85rem; color: var(--m); font-variant-numeric: tabular-nums; }
+        .rt .lv { color: var(--s); font-weight: 600; animation: b 1.5s infinite; }
+        @keyframes b { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; margin-top: 4px; }
+        .tag.n { background: rgba(99,102,241,0.15); color: #818cf8; }
+        .tag.o { background: rgba(245,158,11,0.15); color: #fbbf24; }
+        .tag.h { background: rgba(16,185,129,0.15); color: #34d399; }
+        .ra { font-size: 1.2rem; font-weight: 700; font-variant-numeric: tabular-nums; color: #818cf8; white-space: nowrap; }
+        .rb { display: flex; gap: 6px; }
+        .rb button { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--b); background: rgba(255,255,255,0.05); color: var(--m); font-size: 0.75rem; cursor: pointer; }
+        .rb .e { background: rgba(16,185,129,0.15); color: var(--s); border-color: rgba(16,185,129,0.3); }
+        .rb .d:hover { background: rgba(239,68,68,0.15); color: var(--d); }
+        .ab { width: 100%; padding: 14px; border-radius: 14px; border: 1px dashed rgba(99,102,241,0.4); background: rgba(99,102,241,0.05); color: var(--p); font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .af { background: rgba(255,255,255,0.02); border-radius: 14px; padding: 16px; border: 1px solid var(--b); margin-top: 12px; display: none; }
+        .af.s { display: block; }
+        .fr { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .br { display: flex; gap: 10px; margin-top: 12px; }
+        .btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+        .bo { background: linear-gradient(135deg,var(--p),var(--pd)); color: white; }
+        .bc { background: rgba(255,255,255,0.05); color: var(--t); border: 1px solid var(--b); }
+        .hl { max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .hd { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+        .hd .tp { display: flex; justify-content: space-between; align-items: center; }
+        .hd .dt { font-weight: 600; font-size: 0.9rem; }
+        .hd .tg { font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; margin-left: 6px; }
+        .hd .tg.w { background: rgba(99,102,241,0.15); color: #818cf8; }
+        .hd .tg.o { background: rgba(245,158,11,0.15); color: #fbbf24; }
+        .hd .am { font-weight: 700; font-variant-numeric: tabular-nums; color: #818cf8; }
+        .hd .de { font-size: 0.8rem; color: var(--m); margin-top: 4px; }
+        .hd .de span { margin-right: 10px; }
+        .hr { max-height: 0; overflow: hidden; transition: 0.3s; margin-top: 0; }
+        .hd.op .hr { max-height: 300px; margin-top: 10px; }
+        .mn { display: flex; justify-content: space-between; padding: 5px 0; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .mn:last-child { border: none; }
+        .mn .t { color: var(--m); font-size: 0.8rem; }
+        .mn .a { font-weight: 600; font-variant-numeric: tabular-nums; }
+        .em { text-align: center; padding: 20px; color: var(--m); font-size: 0.9rem; }
+        .tb2 { display: flex; gap: 10px; margin-top: 12px; }
+        .tb2 .btn { font-size: 0.85rem; padding: 10px; }
+        .tip { display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--c); border: 1px solid var(--p); border-radius: 14px; padding: 14px 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); z-index: 100; text-align: center; max-width: 90%; }
+        .tip.sh { display: block; }
+        .tip p { font-size: 0.85rem; margin-bottom: 10px; }
+        .tip button { background: var(--p); color: white; border: none; padding: 8px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; }
+        .info { font-size: 0.8rem; color: var(--m); margin-top: 8px; padding: 10px; background: rgba(255,255,255,0.02); border-radius: 8px; line-height: 1.5; }
+        .info strong { color: var(--t); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--b); border-radius: 2px; }
+        @media (max-width:400px){ .tc .a{font-size:2rem} .ss{grid-template-columns:1fr} .fr{grid-template-columns:1fr} }
+    </style>
+</head>
+<body>
+    <div class="w">
+        <div class="h"><h1>💰 工时工资计算器</h1><p>满8小时自动算加班</p></div>
+        
+        <div class="tc"><div class="l">累计总收入</div><div class="a" id="gt">¥0.00</div><div class="s">共 <span id="gd">0</span> 天 · <span id="gh">0.00</span> h</div></div>
+        
+        <div class="card">
+            <div class="ct">⚙️ 时薪设置</div>
+            <div class="ss">
+                <div class="fg"><label>工作日正常时薪 (¥/h)</label><input type="number" id="nr" value="14.48" step="0.01" onchange="ss()"></div>
+                <div class="fg"><label>工作日加班时薪 (¥/h)</label><input type="number" id="wr" value="21.72" step="0.01" onchange="ss()"></div>
+                <div class="fg"><label>非工作日加班时薪 (¥/h)</label><input type="number" id="hr" value="28.97" step="0.01" onchange="ss()"></div>
+                <div class="fg"><label>每天正常工时 (小时)</label><input type="number" id="qt" value="8" min="1" step="0.5" onchange="ss()"></div>
+            </div>
+            
+            <div class="db"><input type="date" id="dp" onchange="cd()"><div class="badge w" id="db" onclick="td()">工作日</div></div>
+            
+            <div class="sr">
+                <div class="sb n"><div class="v" id="sn">¥0.00</div><div class="l">正常工资</div></div>
+                <div class="sb o"><div class="v" id="so">¥0.00</div><div class="l">加班工资</div></div>
+                <div class="sb t"><div class="v" id="st">¥0.00</div><div class="l">当日合计</div></div>
+            </div>
+            
+            <div class="ct">📋 当日记录</div>
+            <div class="rl" id="rl"><div class="em">暂无记录，点击添加</div></div>
+            
+            <button class="ab" id="at" onclick="ta()">+ 添加上班时段</button>
+            <div class="af" id="af">
+                <div class="fr">
+                    <div class="fg"><label>开始时间</label><input type="time" id="ns"></div>
+                    <div class="fg"><label>结束时间(留空=进行中)</label><input type="time" id="ne"></div>
+                    <div class="fg"><label>备注</label><input type="text" id="nn" placeholder="可选"></div>
+                </div>
+                <div class="info">
+                    <strong>自动计算规则：</strong><br>
+                    工作日：累计所有上班时段，前 <span id="iq">8</span> 小时按正常时薪，超出按工作日加班时薪<br>
+                    非工作日：全部按非工作日加班时薪<br>
+                    进行中的时段会实时跳动计算
+                </div>
+                <div class="br"><button class="btn bo" onclick="ar()">✓ 确认添加</button><button class="btn bc" onclick="ta()">取消</button></div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="ct">📅 历史记录</div>
+            <div class="hl" id="hl"><div class="em">暂无记录</div></div>
+            <div class="tb2"><button class="btn bc" onclick="ex()">📤 导出</button><button class="btn bc" onclick="ca()">🗑 清空</button></div>
+        </div>
+    </div>
+    <div class="tip" id="tip"><p>📲 添加到主屏幕，像 App 一样使用</p><button onclick="ia()">立即安装</button></div>
+
+<script>
+// 创建 manifest（Edge 需要这个才能安装）
+const manifest = {
+    name: "工时工资计算器",
+    short_name: "工时计算器",
+    start_url: ".",
+    display: "standalone",
+    background_color: "#0f172a",
+    theme_color: "#1e293b",
+    icons: [{src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%236366f1' width='192' height='192' rx='32'/%3E%3Ctext x='96' y='120' font-size='100' text-anchor='middle' fill='white'%3E💰%3C/text%3E%3C/svg%3E", sizes: "192x192", type: "image/svg+xml"}]
+};
+const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+const manifestURL = URL.createObjectURL(manifestBlob);
+document.getElementById('manifest').href = manifestURL;
+
+let data=JSON.parse(localStorage.getItem('wd')||'{}'),gs=JSON.parse(localStorage.getItem('wg')||'{}'),cdt=fd(new Date()),dp=null;
+function fd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function pt(t){if(!t)return 0;const[h,m]=t.split(':').map(Number);return h*60+m}
+function gd(d){if(!data[d])data[d]={r:[],dt:'workday'};return data[d]}
+function sv(){localStorage.setItem('wd',JSON.stringify(data))}
+function sg(){localStorage.setItem('wg',JSON.stringify(gs))}
+function ls(){const s=gs;document.getElementById('nr').value=s.nr||14.48;document.getElementById('wr').value=s.wr||21.72;document.getElementById('hr').value=s.hr||28.97;document.getElementById('qt').value=s.qt||8;document.getElementById('iq').textContent=s.qt||8}
+function ss(){gs.nr=parseFloat(document.getElementById('nr').value)||14.48;gs.wr=parseFloat(document.getElementById('wr').value)||21.72;gs.hr=parseFloat(document.getElementById('hr').value)||28.97;gs.qt=parseFloat(document.getElementById('qt').value)||8;sg();document.getElementById('iq').textContent=gs.qt;rd();rh();rg()}
+function cd(){cdt=document.getElementById('dp').value;const d=new Date(cdt),w=d.getDay();const day=gd(cdt);if(!day.dt)day.dt=(w===0||w===6)?'holiday':'workday';ub();rd()}
+function td(){const day=gd(cdt);day.dt=day.dt==='workday'?'holiday':'workday';sv();ub();rd();rh();rg()}
+function ub(){const b=document.getElementById('db'),day=gd(cdt);if(day.dt==='workday'){b.className='badge w';b.textContent='工作日'}else{b.className='badge o';b.textContent='非工作日'}}
+function ta(){const f=document.getElementById('af'),t=document.getElementById('at');if(f.classList.contains('s')){f.classList.remove('s');t.style.display='flex'}else{f.classList.add('s');t.style.display='none';const n=new Date();document.getElementById('ns').value=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');document.getElementById('ne').value='';document.getElementById('nn').value=''}}
+function ar(){const s=document.getElementById('ns').value,e=document.getElementById('ne').value,n=document.getElementById('nn').value.trim();if(!s){alert('请填开始时间');return}if(e&&pt(e)<=pt(s)){alert('结束要晚于开始');return}const day=gd(cdt);day.r.push({id:Date.now(),s,e,n});sv();rd();rh();rg();ta()}
+function er(id){const n=new Date(),t=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');const day=gd(cdt);const rec=day.r.find(x=>x.id===id);if(rec){rec.e=t;sv();rd();rh();rg()}}
+function dr(id){if(!confirm('删除这条记录？'))return;const day=gd(cdt);day.r=day.r.filter(x=>x.id!==id);sv();rd();rh();rg()}
+function calc(d,nowM){const day=gd(d),recs=day.r||[],dt=day.dt||'workday',g=gs,nr=g.nr||14.48,wr=g.wr||21.72,hr=g.hr||28.97,qt=g.qt||8,otr=dt==='workday'?wr:hr;let totalH=0,na=0,nh=0,oa=0,oh=0,hl=false;const pr=[];recs.forEach(r=>{const sm=pt(r.s),em=r.e?pt(r.e):nowM,dur=Math.max(0,em-sm)/60;if(!r.e)hl=true;totalH+=dur;if(dt==='workday'){const remain=Math.max(0,qt-nh);if(dur<=remain){na+=dur*nr;nh+=dur;pr.push({...r,dur,amt:dur*nr,rate:nr,tg:'n',tt:'正常',hl:!r.e})}else{if(remain>0){na+=remain*nr;nh+=remain;oa+=(dur-remain)*wr;oh+=dur-remain;pr.push({...r,dur,amt:remain*nr+(dur-remain)*wr,rate:nr,tg:'m',tt:'混合',np:remain,op:dur-remain,nam:remain*nr,oam:(dur-remain)*wr,hl:!r.e})}else{oa+=dur*wr;oh+=dur;pr.push({...r,dur,amt:dur*wr,rate:wr,tg:'o',tt:'加班',hl:!r.e})}}}else{oa+=dur*hr;oh+=dur;pr.push({...r,dur,amt:dur*hr,rate:hr,tg:'h',tt:'非工作日加班',hl:!r.e})}});return{totalH,na,nh,oa,oh,ta:na+oa,th:nh+oh,hl,pr,c:recs.length,dt}}
+function rd(){const now=new Date(),nm=now.getHours()*60+now.getMinutes()+now.getSeconds()/60,it=cdt===fd(now);const r=calc(cdt,it?nm:24*60);document.getElementById('sn').textContent='¥'+r.na.toFixed(2);document.getElementById('so').textContent='¥'+r.oa.toFixed(2);document.getElementById('st').textContent='¥'+r.ta.toFixed(2);const l=document.getElementById('rl');if(r.c===0){l.innerHTML='<div class="em">暂无记录，点击添加</div>'}else{l.innerHTML=r.pr.map(x=>{const t=x.s+(x.e?' - '+x.e:'');const n=x.n?' · '+x.n:'';const m=x.tg==='m'?` (正常${x.np.toFixed(2)}h+加班${x.op.toFixed(2)}h)`:' ';return`<div class="ri ${x.hl?'on':''}"><div class="rlf"><div class="rt">${t}${x.hl?'<span class="lv"> 进行中</span>':''}</div><div class="tag ${x.tg}">${x.tt}</div><div style="font-size:0.75rem;color:var(--m);margin-top:2px">${x.dur.toFixed(2)}h · ¥${x.rate}/h${n}${m}</div></div><div style="display:flex;align-items:center;gap:8px"><div class="ra">¥${x.amt.toFixed(2)}</div><div class="rb">${x.hl?'<button class="e" onclick="er('+x.id+')">结束</button>':''}<button class="d" onclick="dr('+x.id+')">删除</button></div></div></div>`}).join('')}}
+function ul(){const now=new Date(),nm=now.getHours()*60+now.getMinutes()+now.getSeconds()/60;if(cdt!==fd(now))return;const r=calc(cdt,nm);r.pr.forEach(x=>{if(x.hl){const el=document.querySelector('.ri.on .ra');if(el)el.textContent='¥'+x.amt.toFixed(2)}});document.getElementById('sn').textContent='¥'+r.na.toFixed(2);document.getElementById('so').textContent='¥'+r.oa.toFixed(2);document.getElementById('st').textContent='¥'+r.ta.toFixed(2);rg()}
+function rh(){const l=document.getElementById('hl'),ds=Object.keys(data).sort().reverse();if(ds.length===0){l.innerHTML='<div class="em">暂无记录</div>';return}l.innerHTML=ds.map(d=>{const day=data[d];if(!day.r||day.r.length===0)return'';const it=d===fd(new Date()),now=new Date(),nm=now.getHours()*60+now.getMinutes()+now.getSeconds()/60,r=calc(d,it?nm:24*60),lv=r.hl?' <span style="color:var(--s);font-size:0.75rem">进行中</span>':'';return`<div class="hd" id="h-${d}" onclick="th('${d}')"><div class="tp"><div><span class="dt">${d}</span><span class="tg ${day.dt==='workday'?'w':'o'}">${day.dt==='workday'?'工作日':'非工作日'}</span>${lv}</div><div class="am">¥${r.ta.toFixed(2)}</div></div><div class="de"><span>总工时 ${r.totalH.toFixed(2)}h</span><span>正常 ${r.nh.toFixed(2)}h · ¥${r.na.toFixed(2)}</span><span>加班 ${r.oh.toFixed(2)}h · ¥${r.oa.toFixed(2)}</span></div><div class="hr" id="hr-${d}">${r.pr.map(x=>{const t=x.s+(x.e?' - '+x.e:' 进行中');const n=x.n?' ('+x.n+')':'';return`<div class="mn"><div class="t">${t} ${x.tt}${n}</div><div class="a">¥${x.amt.toFixed(2)}</div></div>`}).join('')}</div></div>`}).join('')}
+function th(d){document.getElementById('h-'+d).classList.toggle('op')}
+function rg(){const now=new Date(),nm=now.getHours()*60+now.getMinutes()+now.getSeconds()/60;let ga=0,gh=0,dy=0;Object.keys(data).forEach(d=>{const day=data[d];if(!day.r||day.r.length===0)return;const it=d===fd(now);const r=calc(d,it?nm:24*60);ga+=r.ta;gh+=r.th;if(r.ta>0||r.th>0)dy++});document.getElementById('gt').textContent='¥'+ga.toFixed(2);document.getElementById('gd').textContent=dy;document.getElementById('gh').textContent=gh.toFixed(2)}
+function ex(){const b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='工时记录_'+fd(new Date())+'.json';a.click();URL.revokeObjectURL(u)}
+function ca(){if(!confirm('确定清空所有记录？不可恢复！'))return;data={};sv();rd();rh();rg()}
+function ci(){window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;if(!window.matchMedia('(display-mode: standalone)').matches)document.getElementById('tip').classList.add('sh')})}
+function ia(){if(dp){dp.prompt();dp=null}document.getElementById('tip').classList.remove('sh')}
+function init(){ls();document.getElementById('dp').value=cdt;const d=new Date(cdt),w=d.getDay();const day=gd(cdt);if(!day.dt)day.dt=(w===0||w===6)?'holiday':'workday';ub();rd();rh();rg();setInterval(ul,500);ci()}
+init();
+</script>
+</body>
+</html>
