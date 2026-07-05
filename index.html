@@ -255,27 +255,30 @@ function calc(d, nowM) {
     let totalH = 0, na = 0, nh = 0, oa = 0, oh = 0, hl = false;
     const pr = [];
     recs.forEach(r => {
-        const sm = pt(r.s), em = r.e ? pt(r.e) : nowM, dur = Math.max(0, em - sm) / 60;
-        if (!r.e) hl = true;
+        const sm = pt(r.s), rawEnd = r.e ? pt(r.e) : null;
+        const em = rawEnd !== null ? Math.min(rawEnd, nowM) : nowM;
+        const dur = Math.max(0, em - sm) / 60;
+        const isLive = sm <= nowM && (rawEnd === null || rawEnd > nowM);
+        if (isLive) hl = true;
         totalH += dur;
         if (dt === 'workday') {
             const remain = Math.max(0, qt - nh);
             if (dur <= remain) {
                 na += dur * nr; nh += dur;
-                pr.push({ ...r, dur, amt: dur * nr, rate: nr, tg: 'n', tt: '正常', hl: !r.e });
+                pr.push({ ...r, dur, amt: dur * nr, rate: nr, tg: 'n', tt: '正常', hl: isLive });
             } else {
                 if (remain > 0) {
                     na += remain * nr; nh += remain;
                     oa += (dur - remain) * wr; oh += dur - remain;
-                    pr.push({ ...r, dur, amt: remain * nr + (dur - remain) * wr, rate: nr, tg: 'm', tt: '混合', np: remain, op: dur - remain, nam: remain * nr, oam: (dur - remain) * wr, hl: !r.e });
+                    pr.push({ ...r, dur, amt: remain * nr + (dur - remain) * wr, rate: nr, tg: 'm', tt: '混合', np: remain, op: dur - remain, nam: remain * nr, oam: (dur - remain) * wr, hl: isLive });
                 } else {
                     oa += dur * wr; oh += dur;
-                    pr.push({ ...r, dur, amt: dur * wr, rate: wr, tg: 'o', tt: '加班', hl: !r.e });
+                    pr.push({ ...r, dur, amt: dur * wr, rate: wr, tg: 'o', tt: '加班', hl: isLive });
                 }
             }
         } else {
             oa += dur * hr; oh += dur;
-            pr.push({ ...r, dur, amt: dur * hr, rate: hr, tg: 'h', tt: '非工作日加班', hl: !r.e });
+            pr.push({ ...r, dur, amt: dur * hr, rate: hr, tg: 'h', tt: '非工作日加班', hl: isLive });
         }
     });
     return { totalH, na, nh, oa, oh, ta: na + oa, th: nh + oh, hl, pr, c: recs.length, dt };
