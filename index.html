@@ -286,8 +286,8 @@ function calc(d, nowM) {
 
 function rd() {
     const now = new Date(), nm = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
-    const it = cdt === fd(now);
-    const r = calc(cdt, it ? nm : 24 * 60);
+    const today = fd(now), it = cdt === today;
+    const r = calc(cdt, it ? nm : (cdt < today ? 24 * 60 : 0));
     document.getElementById('sn').textContent = '¥' + r.na.toFixed(2);
     document.getElementById('so').textContent = '¥' + r.oa.toFixed(2);
     document.getElementById('st').textContent = '¥' + r.ta.toFixed(2);
@@ -325,8 +325,9 @@ function rh() {
     l.innerHTML = ds.map(d => {
         const day = data[d];
         if (!day.r || day.r.length === 0) return '';
-        const it = d === fd(new Date()), now = new Date(), nm = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
-        const r = calc(d, it ? nm : 24 * 60);
+        const now = new Date(), nm = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+        const today = fd(now), it = d === today;
+        const r = calc(d, it ? nm : (d < today ? 24 * 60 : 0));
         const lv = r.hl ? ' <span style="color:var(--s);font-size:0.75rem">进行中</span>' : '';
         return '<div class="hd" id="h-' + d + '" onclick="th(\'' + d + '\')"><div class="tp"><div><span class="dt">' + d + '</span><span class="tg ' + (day.dt === 'workday' ? 'w' : 'o') + '">' + (day.dt === 'workday' ? '工作日' : '非工作日') + '</span>' + lv + '</div><div class="am">¥' + r.ta.toFixed(2) + '</div></div><div class="de"><span>总工时 ' + r.totalH.toFixed(2) + 'h</span><span>正常 ' + r.nh.toFixed(2) + 'h · ¥' + r.na.toFixed(2) + '</span><span>加班 ' + r.oh.toFixed(2) + 'h · ¥' + r.oa.toFixed(2) + '</span></div><div class="hr" id="hr-' + d + '">' + r.pr.map(x => { const t = x.s + (x.e ? ' - ' + x.e : ' 进行中'); const n = x.n ? ' (' + x.n + ')' : ''; return '<div class="mn"><div class="t">' + t + ' ' + x.tt + n + '</div><div class="a">¥' + x.amt.toFixed(2) + '</div></div>'; }).join('') + '</div></div>';
     }).join('');
@@ -340,8 +341,8 @@ function rg() {
     Object.keys(data).forEach(d => {
         const day = data[d];
         if (!day.r || day.r.length === 0) return;
-        const it = d === fd(now);
-        const r = calc(d, it ? nm : 24 * 60);
+        const today = fd(now), it = d === today;
+        const r = calc(d, it ? nm : (d < today ? 24 * 60 : 0));
         ga += r.ta; gh += r.th;
         if (r.ta > 0 || r.th > 0) dy++;
     });
